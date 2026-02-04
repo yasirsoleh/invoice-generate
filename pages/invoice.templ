@@ -254,7 +254,7 @@ templ InvoicePage(inv models.Invoice) {
 					</tr>
 					<tr>
 						<!-- SUBTOTAL, TAX, TOTAL DUE -->
-						<td><strong>Total Due</strong></td>
+						<td><strong>Total Due ({ inv.CurrencyCode })</strong></td>
 						<td class="right"><strong>{ fmt.Sprintf("%.2f", inv.TotalDue()) }</strong></td>
 					</tr>
 				</table>

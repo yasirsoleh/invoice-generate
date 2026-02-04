@@ -31,6 +31,7 @@ func main() {
 	paymentBankName := flag.String("payment-bank", "", "Bank name for payment")
 	paymentAccountName := flag.String("payment-account-name", "", "Account name for payment")
 	paymentAccountNumber := flag.String("payment-account-number", "", "Account number for payment")
+	currencyCode := flag.String("currency_code", "RM", "Currency code for the invoice")
 	taxRate := flag.Float64("tax-rate", 0.06, "Tax rate as a decimal (e.g., 0.06 for 6%)")
 
 	flag.Parse()
@@ -92,9 +93,10 @@ func main() {
 				Email:     *issuerEmail,
 				Phone:     *issuerPhone,
 			},
-			Recipient: receipient,
-			Items:     items,
-			TaxRate:   *taxRate, // 6% tax
+			Recipient:    receipient,
+			Items:        items,
+			TaxRate:      *taxRate, // 6% tax
+			CurrencyCode: *currencyCode,
 			Payment: models.PaymentInfo{
 				Method:        *paymentMethod,
 				BankName:      *paymentBankName,

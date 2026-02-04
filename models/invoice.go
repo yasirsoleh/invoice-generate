@@ -25,13 +25,14 @@ type Item struct {
 }
 
 type Invoice struct {
-	Number    string  `json:"number"`
-	Date      string  `json:"date"`
-	Issuer    Party   `json:"issuer"`
-	Recipient Party   `json:"recipient"`
-	Items     []Item  `json:"items"`
-	TaxRate   float64 `json:"tax_rate"` // e.g. 0.06 for 6%
-	Payment   PaymentInfo
+	Number       string  `json:"number"`
+	Date         string  `json:"date"`
+	Issuer       Party   `json:"issuer"`
+	Recipient    Party   `json:"recipient"`
+	Items        []Item  `json:"items"`
+	TaxRate      float64 `json:"tax_rate"` // e.g. 0.06 for 6%
+	CurrencyCode string  `json:"currency_code"`
+	Payment      PaymentInfo
 }
 
 func NewInvoice(number, date string, issuer, recipient Party, items []Item) Invoice {
