@@ -153,4 +153,5 @@ func main() {
 
 	fmt.Println("Server running on http://" + getEnvOrFlag("SERVE_ADDRESS", *serveAddress))
 	http.ListenAndServe(getEnvOrFlag("SERVE_ADDRESS", *serveAddress), nil)
+	fmt.Println("Server stopped")
 }
