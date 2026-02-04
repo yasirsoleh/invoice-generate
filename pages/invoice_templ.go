@@ -418,7 +418,7 @@ func InvoicePage(inv models.Invoice) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<tr><td rowspan=\"3\" colspan=\"3\" style=\"border: none;\"><!-- PAYMENT INFORMATION --><div class=\"payment\"><div class=\"label\">Payment Information:</div><table><tr><td style=\"width: 40%;\">Method</td><td>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<tr><td rowspan=\"3\" colspan=\"3\" style=\"border: none;\"><!-- PAYMENT INFORMATION --><div class=\"payment\"><div class=\"label\">Payment Information:</div><table><tr><td style=\"width: 45%;\">Method</td><td>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
