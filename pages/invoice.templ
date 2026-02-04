@@ -216,18 +216,24 @@ templ InvoicePage(inv models.Invoice) {
 										<td style="width: 40%;">Method</td>
 										<td>{ inv.Payment.Method }</td>
 									</tr>
-									<tr>
-										<td>Bank</td>
-										<td>{ inv.Payment.BankName }</td>
-									</tr>
-									<tr>
-										<td>Account Name</td>
-										<td>{ inv.Payment.AccountName }</td>
-									</tr>
-									<tr>
-										<td>Account Number</td>
-										<td>{ inv.Payment.AccountNumber }</td>
-									</tr>
+									if inv.Payment.BankName != "" {
+										<tr>
+											<td>Bank</td>
+											<td>{ inv.Payment.BankName }</td>
+										</tr>
+									}
+									if inv.Payment.AccountName != "" {
+										<tr>
+											<td>Account Name</td>
+											<td>{ inv.Payment.AccountName }</td>
+										</tr>
+									}
+									if inv.Payment.AccountNumber != "" {
+										<tr>
+											<td>Account Number</td>
+											<td>{ inv.Payment.AccountNumber }</td>
+										</tr>
+									}
 								</table>
 								if inv.Payment.Notes != "" {
 									<div class="multiline" style="margin-top: 2mm;">

@@ -4,11 +4,18 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/yasirsoleh/invoice-generate/models"
 	"github.com/yasirsoleh/invoice-generate/pages"
 	"github.com/yasirsoleh/invoice-generate/repositories"
 )
+
+func normalizeNewlines(s string) string {
+	s = strings.ReplaceAll(s, `\r\n`, "\n")
+	s = strings.ReplaceAll(s, `\n`, "\n")
+	return s
+}
 
 func main() {
 	// load cli args here for issuer details, recipient details, items, etc.
@@ -24,6 +31,8 @@ func main() {
 	taxRate := flag.Float64("tax-rate", 0.06, "Tax rate as a decimal (e.g., 0.06 for 6%)")
 
 	flag.Parse()
+
+	issuerAddressNormalized := normalizeNewlines(*issuerAddress)
 
 	// open db
 	db, err := repositories.OpenDatabase(*dbPath)
@@ -75,7 +84,7 @@ func main() {
 				Name:      *issuerName,
 				NRIC:      *issuerNRIC,
 				TaxNumber: *issuerTaxNumber,
-				Address:   *issuerAddress,
+				Address:   issuerAddressNormalized,
 			},
 			Recipient: receipient,
 			Items:     items,
