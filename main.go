@@ -19,6 +19,7 @@ func normalizeNewlines(s string) string {
 
 func main() {
 	// load cli args here for issuer details, recipient details, items, etc.
+	serveAddress := flag.String("serve-address", ":8080", "Address to serve the web application on")
 	dbPath := flag.String("db-path", "invoices.db", "Path to the SQLite database file")
 	issuerName := flag.String("issuer-name", "", "Name of the invoice issuer")
 	issuerNRIC := flag.String("issuer-nric", "", "NRIC of the invoice issuer")
@@ -131,6 +132,6 @@ func main() {
 		pages.InvoicePage(inv).Render(r.Context(), w)
 	})
 
-	fmt.Println("Server running on http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
+	fmt.Println("Server running on http://" + *serveAddress)
+	http.ListenAndServe(*serveAddress, nil)
 }
