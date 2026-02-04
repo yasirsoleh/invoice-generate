@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/yasirsoleh/invoice-generate/models"
@@ -15,6 +16,24 @@ func normalizeNewlines(s string) string {
 	s = strings.ReplaceAll(s, `\r\n`, "\n")
 	s = strings.ReplaceAll(s, `\n`, "\n")
 	return s
+}
+
+func getEnvOrFlag(envKey, flagValue string) string {
+	if envValue, exists := os.LookupEnv(envKey); exists {
+		return envValue
+	}
+	return flagValue
+}
+
+func getEnvOrFlagFloat(envKey string, flagValue float64) float64 {
+	if envValue, exists := os.LookupEnv(envKey); exists {
+		var f float64
+		_, err := fmt.Sscanf(envValue, "%f", &f)
+		if err == nil {
+			return f
+		}
+	}
+	return flagValue
 }
 
 func main() {
@@ -37,10 +56,10 @@ func main() {
 
 	flag.Parse()
 
-	issuerAddressNormalized := normalizeNewlines(*issuerAddress)
+	issuerAddressNormalized := normalizeNewlines(getEnvOrFlag("ISSUER_ADDRESS", *issuerAddress))
 
 	// open db
-	db, err := repositories.OpenDatabase(*dbPath)
+	db, err := repositories.OpenDatabase(getEnvOrFlag("DB_PATH", *dbPath))
 	if err != nil {
 		panic(err)
 	}
@@ -86,23 +105,23 @@ func main() {
 			Number: invNumber,
 			Date:   date.Format("2006-01-02"),
 			Issuer: models.Party{
-				Name:      *issuerName,
-				NRIC:      *issuerNRIC,
-				BRN:       *issuerBRN,
-				TaxNumber: *issuerTaxNumber,
+				Name:      getEnvOrFlag("ISSUER_NAME", *issuerName),
+				NRIC:      getEnvOrFlag("ISSUER_NRIC", *issuerNRIC),
+				BRN:       getEnvOrFlag("ISSUER_BRN", *issuerBRN),
+				TaxNumber: getEnvOrFlag("ISSUER_TAX", *issuerTaxNumber),
 				Address:   issuerAddressNormalized,
-				Email:     *issuerEmail,
-				Phone:     *issuerPhone,
+				Email:     getEnvOrFlag("ISSUER_EMAIL", *issuerEmail),
+				Phone:     getEnvOrFlag("ISSUER_PHONE", *issuerPhone),
 			},
 			Recipient:    receipient,
 			Items:        items,
-			TaxRate:      *taxRate, // 6% tax
-			CurrencyCode: *currencyCode,
+			TaxRate:      getEnvOrFlagFloat("TAX_RATE", *taxRate), // 6% tax
+			CurrencyCode: getEnvOrFlag("CURRENCY_CODE", *currencyCode),
 			Payment: models.PaymentInfo{
-				Method:        *paymentMethod,
-				BankName:      *paymentBankName,
-				AccountName:   *paymentAccountName,
-				AccountNumber: *paymentAccountNumber,
+				Method:        getEnvOrFlag("PAYMENT_METHOD", *paymentMethod),
+				BankName:      getEnvOrFlag("PAYMENT_BANK", *paymentBankName),
+				AccountName:   getEnvOrFlag("PAYMENT_ACCOUNT_NAME", *paymentAccountName),
+				AccountNumber: getEnvOrFlag("PAYMENT_ACCOUNT_NUMBER", *paymentAccountNumber),
 			},
 		}
 
@@ -132,6 +151,6 @@ func main() {
 		pages.InvoicePage(inv).Render(r.Context(), w)
 	})
 
-	fmt.Println("Server running on http://" + *serveAddress)
-	http.ListenAndServe(*serveAddress, nil)
+	fmt.Println("Server running on http://" + getEnvOrFlag("SERVE_ADDRESS", *serveAddress))
+	http.ListenAndServe(getEnvOrFlag("SERVE_ADDRESS", *serveAddress), nil)
 }
