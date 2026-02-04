@@ -28,13 +28,21 @@ func ParseInvoice(r *http.Request) (time.Time, models.Party, []models.Item, erro
 	}
 
 	recipientName := r.FormValue("recipient_name")
+	recipientNRIC := r.FormValue("recipient_nric")
+	recipientBRN := r.FormValue("recipient_brn")
 	recipientTax := r.FormValue("recipient_tax")
 	recipientAddress := r.FormValue("recipient_address")
+	recipientEmail := r.FormValue("recipient_email")
+	recipientPhone := r.FormValue("recipient_phone")
 
 	receipient = models.Party{
 		Name:      recipientName,
+		NRIC:      recipientNRIC,
+		BRN:       recipientBRN,
 		TaxNumber: recipientTax,
 		Address:   recipientAddress,
+		Email:     recipientEmail,
+		Phone:     recipientPhone,
 	}
 
 	var items []models.Item
@@ -105,8 +113,13 @@ templ CreateInvoicePage() {
 				<h3>Recipient</h3>
 				<input name="date" type="date" required/>
 				<input name="recipient_name" placeholder="Recipient Name" required/>
+				<input name="recipient_nric" placeholder="NRIC"/>
+				<input name="recipient_brn" placeholder="BRN"/>
 				<input name="recipient_tax" placeholder="Tax Number"/>
 				<textarea name="recipient_address" placeholder="Address" required></textarea>
+				<input name="recipient_email" type="email" placeholder="Email"/>
+				<input name="recipient_phone" placeholder="Phone Number"/>
+				<br/>
 				<h3>Items</h3>
 				<table id="items-table" style="width:100%; border-collapse: collapse;">
 					<thead>

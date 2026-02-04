@@ -20,14 +20,17 @@ func normalizeNewlines(s string) string {
 func main() {
 	// load cli args here for issuer details, recipient details, items, etc.
 	dbPath := flag.String("db-path", "invoices.db", "Path to the SQLite database file")
-	issuerName := flag.String("issuer-name", "ISSUER NAME", "Name of the invoice issuer")
-	issuerNRIC := flag.String("issuer-nric", "ISSUER NRIC", "NRIC of the invoice issuer")
-	issuerTaxNumber := flag.String("issuer-tax", "ISSUER TAX NUMBER", "Tax number of the invoice issuer")
-	issuerAddress := flag.String("issuer-address", "123, Building,\nStreet Name,\n City,\n State", "Address of the invoice issuer")
+	issuerName := flag.String("issuer-name", "", "Name of the invoice issuer")
+	issuerNRIC := flag.String("issuer-nric", "", "NRIC of the invoice issuer")
+	issuerBRN := flag.String("issuer-brn", "", "BRN of the invoice issuer")
+	issuerTaxNumber := flag.String("issuer-tax", "", "Tax number of the invoice issuer")
+	issuerAddress := flag.String("issuer-address", "", "Address of the invoice issuer")
+	issuerEmail := flag.String("issuer-email", "", "Email of the invoice issuer")
+	issuerPhone := flag.String("issuer-phone", "", "Phone number of the invoice issuer")
 	paymentMethod := flag.String("payment-method", "Bank Transfer", "Payment method")
-	paymentBankName := flag.String("payment-bank", "Generic Bank", "Bank name for payment")
-	paymentAccountName := flag.String("payment-account-name", "ISSUER NAME", "Account name for payment")
-	paymentAccountNumber := flag.String("payment-account-number", "ISSUER ACCOUNT NUMBER", "Account number for payment")
+	paymentBankName := flag.String("payment-bank", "", "Bank name for payment")
+	paymentAccountName := flag.String("payment-account-name", "", "Account name for payment")
+	paymentAccountNumber := flag.String("payment-account-number", "", "Account number for payment")
 	taxRate := flag.Float64("tax-rate", 0.06, "Tax rate as a decimal (e.g., 0.06 for 6%)")
 
 	flag.Parse()
@@ -83,8 +86,11 @@ func main() {
 			Issuer: models.Party{
 				Name:      *issuerName,
 				NRIC:      *issuerNRIC,
+				BRN:       *issuerBRN,
 				TaxNumber: *issuerTaxNumber,
 				Address:   issuerAddressNormalized,
+				Email:     *issuerEmail,
+				Phone:     *issuerPhone,
 			},
 			Recipient: receipient,
 			Items:     items,

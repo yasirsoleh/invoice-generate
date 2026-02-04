@@ -157,13 +157,14 @@ templ InvoicePage(inv models.Invoice) {
 						<br/>
 					}
 					if inv.Recipient.NRIC != "" {
-						<br/>
 						NRIC: { inv.Recipient.NRIC }
+						<br/>
 					}
 					if inv.Recipient.TaxNumber != "" {
 						TIN: { inv.Recipient.TaxNumber }
 						<br/>
 					}
+					<br/>
 					if inv.Recipient.Address != "" {
 						<div class="multiline">
 							{ inv.Recipient.Address }
