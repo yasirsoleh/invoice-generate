@@ -1,0 +1,257 @@
+package pages
+
+import (
+	"fmt"
+	"github.com/yasirsoleh/invoice-generate/models"
+)
+
+templ InvoicePage(inv models.Invoice) {
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<meta charset="utf-8"/>
+			<title>Invoice { inv.Number }</title>
+			<style>
+				@page {
+					size: A4;
+					margin: 20mm;
+				}
+
+				body {
+					margin: 0;
+					font-family: Arial, sans-serif;
+				}
+
+				.page {
+					width: 210mm;
+					min-height: 297mm;
+					margin: 0 auto;
+					box-sizing: border-box;
+				}
+
+				.header {
+					text-align: center;
+					font-size: 24px;
+					font-weight: bold;
+					margin-bottom: 30px;
+				}
+
+				.top {
+					display: flex;
+					justify-content: space-between;
+					margin-bottom: 30px;
+				}
+
+				.block {
+					width: 48%;
+				}
+
+				.label {
+					font-weight: bold;
+				}
+
+				table {
+					width: 100%;
+					border-collapse: collapse;
+					
+				}
+
+				th, td {
+					border: 1px solid #000;
+					padding: 8px;
+				}
+
+				th {
+					background: #f5f5f5;
+				}
+
+				.right {
+					text-align: right;
+				}
+
+				.total {
+					margin-top: 15px;
+					text-align: right;
+					font-weight: bold;
+				}
+
+				@media print {
+					body { padding: 0; }
+				}
+
+				.multiline {
+					white-space: pre-line;
+				}
+
+				.payment {
+					width: 40%;
+					font-size: 11px;
+					line-height: 1.4;
+				}
+
+				.payment-title {
+					font-weight: bold;
+				}
+
+				.payment table {
+					width: 100%;
+					border-collapse: collapse;
+				}
+
+				.payment td {
+					padding: 2px 4px;
+					vertical-align: top;
+				}
+			</style>
+		</head>
+		<body>
+			<div class="page">
+				<!-- TOPMOST CENTER -->
+				<div class="header">
+					INVOICE
+				</div>
+				<!-- TOP LEFT / TOP RIGHT -->
+				<div class="top">
+					<div class="block">
+						<div class="label">{ inv.Issuer.Name }</div>
+						if inv.Issuer.BRN != "" {
+							BRN: { inv.Issuer.BRN }
+							<br/>
+						}
+						if inv.Issuer.NRIC != "" {
+							NRIC: { inv.Issuer.NRIC }
+							<br/>
+						}
+						if inv.Issuer.TaxNumber != "" {
+							TIN: { inv.Issuer.TaxNumber }
+							<br/>
+						}
+						<br/>
+						if inv.Issuer.Address != "" {
+							<div class="multiline">
+								{ inv.Issuer.Address }
+							</div>
+							<br/>
+						}
+						if inv.Issuer.Phone != "" {
+							Phone: { inv.Issuer.Phone }
+							<br/>
+						}
+						if inv.Issuer.Email != "" {
+							Email: { inv.Issuer.Email }
+							<br/>
+						}
+					</div>
+					<div class="block right">
+						<div><span class="label">Invoice Number:</span> { inv.Number }</div>
+						<div><span class="label">Date:</span> { inv.Date }</div>
+					</div>
+				</div>
+				<!-- RECIPIENT -->
+				<div class="block">
+					<div class="label">Bill To:</div>
+					{ inv.Recipient.Name }
+					<br/>
+					if inv.Recipient.BRN != "" {
+						BRN: { inv.Recipient.BRN }
+						<br/>
+					}
+					if inv.Recipient.NRIC != "" {
+						<br/>
+						NRIC: { inv.Recipient.NRIC }
+					}
+					if inv.Recipient.TaxNumber != "" {
+						TIN: { inv.Recipient.TaxNumber }
+						<br/>
+					}
+					if inv.Recipient.Address != "" {
+						<div class="multiline">
+							{ inv.Recipient.Address }
+						</div>
+						<br/>
+					}
+					if inv.Recipient.Phone != "" {
+						Phone: { inv.Recipient.Phone }
+						<br/>
+					}
+					if inv.Recipient.Email != "" {
+						Email: { inv.Recipient.Email }
+						<br/>
+					}
+				</div>
+				<!-- ITEMS TABLE -->
+				<table style="margin-top: 15px;">
+					<colgroup>
+						<col style="width: 5%"/>
+						<col style="width: 51%"/>
+						<col style="width: 10%"/>
+						<col style="width: 17%"/>
+						<col style="width: 17%"/>
+					</colgroup>
+					<tr>
+						<th>Items</th>
+						<th>Description</th>
+						<th class="right">Quantity</th>
+						<th class="right">Price</th>
+						<th class="right">Total</th>
+					</tr>
+					for i, item := range inv.Items {
+						<tr>
+							<td>{ i + 1 }</td>
+							<td>{ item.Description }</td>
+							<td class="right">{ item.Quantity }</td>
+							<td class="right">{ fmt.Sprintf("%.2f", item.Price) }</td>
+							<td class="right">
+								{ fmt.Sprintf("%.2f", inv.ItemTotal(item)) }
+							</td>
+						</tr>
+					}
+					<tr>
+						<td rowspan="3" colspan="3" style="border: none;">
+							<!-- PAYMENT INFORMATION -->
+							<div class="payment">
+								<div class="label">Payment Information:</div>
+								<table>
+									<tr>
+										<td style="width: 40%;">Method</td>
+										<td>{ inv.Payment.Method }</td>
+									</tr>
+									<tr>
+										<td>Bank</td>
+										<td>{ inv.Payment.BankName }</td>
+									</tr>
+									<tr>
+										<td>Account Name</td>
+										<td>{ inv.Payment.AccountName }</td>
+									</tr>
+									<tr>
+										<td>Account Number</td>
+										<td>{ inv.Payment.AccountNumber }</td>
+									</tr>
+								</table>
+								if inv.Payment.Notes != "" {
+									<div class="multiline" style="margin-top: 2mm;">
+										<strong>Note:</strong> { inv.Payment.Notes }
+									</div>
+								}
+							</div>
+						</td>
+						<!-- SUBTOTAL, TAX, TOTAL DUE -->
+						<td>Subtotal</td>
+						<td class="right">{ fmt.Sprintf("%.2f", inv.Subtotal()) }</td>
+					</tr>
+					<tr>
+						<!-- SUBTOTAL, TAX, TOTAL DUE -->
+						<td>Sales Tax ({ fmt.Sprintf("%.0f%%", inv.TaxRate*100) })</td>
+						<td class="right">{ fmt.Sprintf("%.2f", inv.SalesTax()) }</td>
+					</tr>
+					<tr>
+						<!-- SUBTOTAL, TAX, TOTAL DUE -->
+						<td><strong>Total Due</strong></td>
+						<td class="right"><strong>{ fmt.Sprintf("%.2f", inv.TotalDue()) }</strong></td>
+					</tr>
+				</table>
+			</div>
+		</body>
+	</html>
+}

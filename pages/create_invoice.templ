@@ -1,0 +1,169 @@
+package pages
+
+import (
+	"fmt"
+	"github.com/yasirsoleh/invoice-generate/models"
+	"net/http"
+	"strconv"
+	"time"
+)
+
+func ParseInvoice(r *http.Request) (time.Time, models.Party, []models.Item, error) {
+	var receipient models.Party
+	var date time.Time
+
+	if err := r.ParseForm(); err != nil {
+		return date, receipient, nil, err
+	}
+
+	dateStr := r.FormValue("date")
+	if dateStr == "" {
+		return date, receipient, nil, fmt.Errorf("date is required")
+	}
+
+	var err error
+	date, err = time.Parse("2006-01-02", dateStr)
+	if err != nil {
+		return date, receipient, nil, fmt.Errorf("invalid date format: %v", err)
+	}
+
+	recipientName := r.FormValue("recipient_name")
+	recipientTax := r.FormValue("recipient_tax")
+	recipientAddress := r.FormValue("recipient_address")
+
+	receipient = models.Party{
+		Name:      recipientName,
+		TaxNumber: recipientTax,
+		Address:   recipientAddress,
+	}
+
+	var items []models.Item
+	for i := 0; ; i++ {
+		desc := r.FormValue(fmt.Sprintf("items[%d][desc]", i))
+		if desc == "" {
+			break
+		}
+		qtyStr := r.FormValue(fmt.Sprintf("items[%d][qty]", i))
+		priceStr := r.FormValue(fmt.Sprintf("items[%d][price]", i))
+
+		qty, err := strconv.Atoi(qtyStr)
+		if err != nil {
+			return date, receipient, nil, fmt.Errorf("invalid quantity for item %d", i)
+		}
+		price, err := strconv.ParseFloat(priceStr, 64)
+		if err != nil {
+			return date, receipient, nil, fmt.Errorf("invalid price for item %d", i)
+		}
+
+		items = append(items, models.Item{
+			Description: desc,
+			Quantity:    qty,
+			Price:       price,
+		})
+	}
+
+	return date, receipient, items, nil
+}
+
+templ CreateInvoicePage() {
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<meta charset="utf-8"/>
+			<title>Create Invoice</title>
+			<style>
+				body {
+					font-family: Arial, sans-serif;
+					margin: 20px;
+				}
+
+				input, textarea, button {
+					font-size: 14px;
+					margin: 5px 0;
+					padding: 8px;
+					width: 100%;
+					box-sizing: border-box;
+				}
+
+				table, th, td {
+					border: 1px solid #000;
+				}
+
+				th, td {
+					padding: 8px;
+					text-align: left;
+				}
+
+				button {
+					width: auto;
+				}
+			</style>
+		</head>
+		<body>
+			<form method="POST" action="/submit">
+				<h2>Create Invoice</h2>
+				<h3>Recipient</h3>
+				<input name="date" type="date" required/>
+				<input name="recipient_name" placeholder="Recipient Name" required/>
+				<input name="recipient_tax" placeholder="Tax Number"/>
+				<textarea name="recipient_address" placeholder="Address" required></textarea>
+				<h3>Items</h3>
+				<table id="items-table" style="width:100%; border-collapse: collapse;">
+					<thead>
+						<tr>
+							<th>Description</th>
+							<th style="width:80px;">Qty</th>
+							<th style="width:120px;">Price</th>
+							<th style="width:60px;"></th>
+						</tr>
+					</thead>
+					<tbody id="items-body">
+						<tr>
+							<td><input name="items[0][desc]" required/></td>
+							<td><input name="items[0][qty]" type="number" min="1" value="1"/></td>
+							<td><input name="items[0][price]" type="number" step="0.01"/></td>
+							<td>
+								<button type="button" onclick="removeItem(this)">✕</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<button type="button" onclick="addItem()">+ Add Item</button>
+				<br/>
+				<button type="submit">Create Invoice</button>
+			</form>
+		</body>
+		<script>
+let itemIndex = 1;
+
+function addItem() {
+	const tbody = document.getElementById("items-body");
+
+	const tr = document.createElement("tr");
+	tr.innerHTML = `
+		<td><input name="items[${itemIndex}][desc]" required /></td>
+		<td><input name="items[${itemIndex}][qty]" type="number" min="1" value="1" /></td>
+		<td><input name="items[${itemIndex}][price]" type="number" step="0.01" /></td>
+		<td>
+			<button type="button" onclick="removeItem(this)">✕</button>
+		</td>
+	`;
+
+	tbody.appendChild(tr);
+	itemIndex++;
+}
+
+function removeItem(btn) {
+	const row = btn.closest("tr");
+	const tbody = document.getElementById("items-body");
+
+	if (tbody.rows.length === 1) {
+		alert("At least one item is required.");
+		return;
+	}
+
+	row.remove();
+}
+</script>
+	</html>
+}
