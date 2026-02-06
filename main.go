@@ -66,11 +66,13 @@ func main() {
 
 	// serve create invoice form
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("invoice form create request from: %s\n", r.RemoteAddr)
 		pages.CreateInvoicePage().Render(r.Context(), w)
 	})
 
 	// handle create invoice form submission
 	http.HandleFunc("/submit", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("invoice form submit request from: %s\n", r.RemoteAddr)
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			return
@@ -143,6 +145,7 @@ func main() {
 	// serve generated invoice
 	http.HandleFunc("/invoice/", func(w http.ResponseWriter, r *http.Request) {
 		id := r.URL.Path[len("/invoice/"):]
+		fmt.Printf("invoice view request from: %s\n, id: %s", r.RemoteAddr, id)
 		inv, err := repositories.GetInvoice(db, id)
 		if err != nil {
 			http.Error(w, "Failed to get invoice: "+err.Error(), http.StatusInternalServerError)
